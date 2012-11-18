@@ -1,4 +1,4 @@
-# = define: rails_deploy
+# Class: rails::deploy
 #
 # Sets up basic requirements for a deploy:
 #   * user to run the application as
@@ -7,28 +7,25 @@
 # Does not handle creating current, releases or shared directories. Capistrano
 # already handles that.
 #
-# == Parameters:
+# Parameters:
+#   [*app_name*]    - name of the application. Used in the default $deploy_path,
+#                     "/u/apps/${app_name}". Defaults to the name of the resource.
+#   [*deploy_path*] - where the application will be deployed. Defaults to '/u/apps'
+#   [*app_user*]    - name of the system user to create to run the application as.
+#                     Defaults to 'deploy'
 #
-# $app_name:: name of the application. Used in the default $deploy_path,
-#   "/data/${app_name}". Defaults to the name of the resource.
-# $deploy_path:: where the application will be deployed. Defaults to '/data'
-# $app_user:: name of the system user to create to run the application as.
-#   Defaults to 'deploy'
+# Requires:
 #
-# == Requires:
-#
-# Nothing.
-#
-# == Sample Usage:
-#
-#   rails_deploy { 'todo-list':
+# Sample Usage:
+#   rails::deploy { 'todo-list':
 #     app_user => 'passenger',
 #     deploy_path => '/var/lib/passenger,
 #   }
 #
+
 define rails::deploy(
   $app_name    = $name,
-  $deploy_path = '/data',
+  $deploy_path = '/u/apps/',
   $app_user    = 'deploy'
 ) {
 
@@ -40,23 +37,36 @@ define rails::deploy(
   }
 
   group { $app_user :
-    ensure  => present,
-    require => User[$app_user],
+    ensure     => present,
+    require    => User[$app_user],
   }
 
-  file { $deploy_path :
-    ensure  => directory,
-    owner   => $app_user,
-    group   => $app_user,
-    mode    => '1775',
-    require => User[$app_user],
+  exec { 'create_rails_deploy_path':
+    command    => "/bin/mkdir -p ${deploy_path}/${app_name}",
+    unless     => "/usr/bin/test -d ${deploy_path}/${app_name}"
   }
 
   file { "${deploy_path}/${app_name}":
-    ensure  => directory,
-    owner   => $app_user,
-    group   => $app_user,
-    mode    => '1775',
-    require => File[$deploy_path],
+    ensure     => directory,
+    owner      => $app_user,
+    group      => $app_user,
+    mode       => '1775',
+    require    => [User[$app_user], Exec['create_rails_deploy_path']]
   }
+
+  file { "${deploy_path}/${app_name}/releases":
+    ensure     => directory,
+    owner      => $app_user,
+    group      => $app_user,
+    mode       => '1775',
+    require    => File["${deploy_path}/${app_name}"]
+  }
+
+  file { "${deploy_path}/${app_name}/shared":
+    ensure     => directory,
+    owner      => $app_user,
+    group      => $app_user,
+    require    => File["${deploy_path}/${app_name}"]
+  }
+
 }
