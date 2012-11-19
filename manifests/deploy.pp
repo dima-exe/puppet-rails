@@ -90,13 +90,6 @@ define rails::deploy(
     unless     => "/usr/bin/test -d ${deploy_path}/${app_name}"
   }
 
-  file{ "${deploy_path}/crontab":
-    ensure     => 'directory',
-    owner      => $app_user,
-    group      => $app_user,
-    require    => [User[$app_user], Exec['create_rails_deploy_path']]
-  }
-
   file { "${deploy_path}/${app_name}":
     ensure     => directory,
     owner      => $app_user,
