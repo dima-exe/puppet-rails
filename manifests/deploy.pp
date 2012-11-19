@@ -37,7 +37,7 @@ define rails::deploy(
     ensure     => present,
     system     => true,
     managehome => true,
-    shell      => "/bin/bash",
+    shell      => '/bin/bash',
     home       => "/home/${app_user}",
   }
 
@@ -90,18 +90,11 @@ define rails::deploy(
     unless     => "/usr/bin/test -d ${deploy_path}/${app_name}"
   }
 
-  file{ "${deploy_path}/${app_name}":
-    ensure     => 'directory',
-    owner      => $app_user,
-    group      => $app_user,
-    require    => Exec['create_rails_deploy_path']
-  }
-
   file{ "${deploy_path}/crontab":
     ensure     => 'directory',
     owner      => $app_user,
     group      => $app_user,
-    require    => Exec['create_rails_deploy_path']
+    require    => [User[$app_user], Exec['create_rails_deploy_path']]
   }
 
   file { "${deploy_path}/${app_name}":
