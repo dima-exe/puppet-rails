@@ -90,6 +90,20 @@ define rails::deploy(
     unless     => "/usr/bin/test -d ${deploy_path}/${app_name}"
   }
 
+  file{ "${deploy_path}/${app_name}":
+    ensure     => 'directory',
+    owner      => $app_user,
+    group      => $app_user,
+    require    => Exec['create_rails_deploy_path']
+  }
+
+  file{ "${deploy_path}/crontab":
+    ensure     => 'directory',
+    owner      => $app_user,
+    group      => $app_user,
+    require    => Exec['create_rails_deploy_path']
+  }
+
   file { "${deploy_path}/${app_name}":
     ensure     => directory,
     owner      => $app_user,
@@ -113,4 +127,17 @@ define rails::deploy(
     require    => File["${deploy_path}/${app_name}"]
   }
 
+  file { "${deploy_path}/${app_name}/services":
+    ensure     => directory,
+    owner      => $app_user,
+    group      => $app_user,
+    require    => File["${deploy_path}/${app_name}"]
+  }
+
+  file { "${deploy_path}/${app_name}/shared/config":
+    ensure     => directory,
+    owner      => $app_user,
+    group      => $app_user,
+    require    => File["${deploy_path}/${app_name}/shared"]
+  }
 }
