@@ -37,6 +37,7 @@ define rails::deploy(
     ensure     => present,
     system     => true,
     managehome => true,
+    shell      => "/bin/bash",
     home       => "/home/${app_user}",
   }
 
