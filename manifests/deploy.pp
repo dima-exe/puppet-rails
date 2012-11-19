@@ -9,10 +9,12 @@
 #
 # Parameters:
 #   [*app_name*]    - name of the application. Used in the default $deploy_path,
-#                     "/u/apps/${app_name}". Defaults to the name of the resource.
-#   [*deploy_path*] - where the application will be deployed. Defaults to '/u/apps'
-#   [*app_user*]    - name of the system user to create to run the application as.
-#                     Defaults to 'deploy'
+#                     "/u/apps/${app_name}". Defaults to the name of the
+#                     resource.
+#   [*deploy_path*] - where the application will be deployed. Defaults to
+#                     '/u/apps'
+#   [*app_user*]    - name of the system user to create to run the application
+#                     as. Defaults to 'deploy'
 #
 # Requires:
 #
@@ -26,7 +28,9 @@
 define rails::deploy(
   $app_name    = $name,
   $deploy_path = '/u/apps/',
-  $app_user    = 'deploy'
+  $app_user    = 'deploy',
+  $public_key  = '<EMPTY>',
+  $private_key = '<EMPTY>',
 ) {
 
   user { $app_user :
@@ -39,6 +43,45 @@ define rails::deploy(
   group { $app_user :
     ensure     => present,
     require    => User[$app_user],
+  }
+
+  file{ "/home/${app_user}/.ssh":
+    ensure  => 'directory',
+    mode    => '0700',
+    owner   => $app_user,
+    group   => $app_user,
+    require => User[$app_user]
+  }
+
+  if $private_key != '<EMPTY>' {
+    file{ "/home/${app_user}/.ssh/id_rsa":
+      ensure  => 'present',
+      mode    => '0600',
+      owner   => $app_user,
+      group   => $app_user,
+      content => $private_key,
+      require => File["/home/${app_user}/.ssh"]
+    }
+  }
+
+  if $public_key != '<EMPTY>' {
+    file{ "/home/${app_user}/.ssh/id_rsa.pub":
+      ensure  => 'present',
+      mode    => '0644',
+      owner   => $app_user,
+      group   => $app_user,
+      content => $public_key,
+      require => File["/home/${app_user}/.ssh"]
+    }
+
+    file{ "/home/${app_user}/.ssh/authorized_keys":
+      ensure  => 'present',
+      mode    => '0644',
+      owner   => $app_user,
+      group   => $app_user,
+      content => $public_key,
+      require => File["/home/${app_user}/.ssh"]
+    }
   }
 
   exec { 'create_rails_deploy_path':
