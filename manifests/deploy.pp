@@ -115,7 +115,8 @@ define rails::deploy(
     require    => File["${deploy_path}/${app_name}/services"]
   }
 
-  file { "${deploy_path}/${app_name}/shared/config":
+  file { ["${deploy_path}/${app_name}/shared/config",
+          "${deploy_path}/${app_name}/shared/log"]:
     ensure     => directory,
     owner      => $app_user,
     group      => $app_user,
