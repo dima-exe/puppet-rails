@@ -98,25 +98,13 @@ define rails::deploy(
     require    => [User[$app_user], Exec['create_rails_deploy_path']]
   }
 
-  file { "${deploy_path}/${app_name}/releases":
+  file { ["${deploy_path}/${app_name}/releases",
+          "${deploy_path}/${app_name}/shared",
+          "${deploy_path}/${app_name}/services"]:
     ensure     => directory,
     owner      => $app_user,
     group      => $app_user,
     mode       => '1775',
-    require    => File["${deploy_path}/${app_name}"]
-  }
-
-  file { "${deploy_path}/${app_name}/shared":
-    ensure     => directory,
-    owner      => $app_user,
-    group      => $app_user,
-    require    => File["${deploy_path}/${app_name}"]
-  }
-
-  file { "${deploy_path}/${app_name}/services":
-    ensure     => directory,
-    owner      => $app_user,
-    group      => $app_user,
     require    => File["${deploy_path}/${app_name}"]
   }
 
@@ -125,5 +113,13 @@ define rails::deploy(
     owner      => $app_user,
     group      => $app_user,
     require    => File["${deploy_path}/${app_name}/shared"]
+  }
+
+  file { ["${deploy_path}/${app_name}/shared/config/production",
+          "${deploy_path}/${app_name}/shared/config/staging"]:
+    ensure     => directory,
+    owner      => $app_user,
+    group      => $app_user,
+    require    => File["${deploy_path}/${app_name}/shared/config"]
   }
 }
