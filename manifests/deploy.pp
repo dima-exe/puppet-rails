@@ -108,7 +108,7 @@ define rails::deploy(
     require    => File["${deploy_path}/${app_name}"]
   }
 
-  file { "${deploy_path}/${app_name}/services/cur":
+  file { "${deploy_path}/${app_name}/services/current":
     ensure     => directory,
     owner      => $app_user,
     group      => $app_user,
