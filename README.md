@@ -13,3 +13,5 @@ rails::deploy { 'my-app-name':
   app_user => 'rails',
 }
 ```
+
+

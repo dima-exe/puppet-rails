@@ -1,48 +1,71 @@
 require 'spec_helper'
 
 describe 'rails::deploy' do
-  let(:title) { 'my-app' }
-  let(:params) { { :app_name => 'my-rails-app', :deploy_path => '/opt/apps', :app_user => 'rails' } }
+  let(:title)  { 'my-app' }
+  let(:params) { {
+    :app_name    => 'my-rails-app',
+    :deploy_path => '/u/apps',
+    :app_user    => 'rails'
+  } }
 
-  it "creates user for running application" do
-    should contain_user('rails').with(
-      :system => true,
-      :home => '/home/rails'
-    )
+  it do should contain_user('rails').with(
+          :system     => true,
+          :home       => '/home/rails',
+          :managehome => true,
+          :shell      => '/bin/bash'
+  ) end
+
+  it do should contain_group('rails').with(
+          :require => 'User[rails]',
+  ) end
+
+  it do should contain_file("/home/rails/.ssh").with(
+          :mode  => '0700',
+          :owner => 'rails',
+          :group => 'rails',
+          :require => "User[rails]"
+  ) end
+
+  context "with $keys" do
+    let(:params) { { :keys => ["keys"], :app_user => "rails" } }
+
+    it do should contain_file("/home/rails/.ssh/authorized_keys").with(
+            :mode    => '0644',
+            :content => 'keys',
+            :owner   => 'rails',
+            :require => "File[/home/rails/.ssh]"
+    ) end
   end
 
-  it "creates the group for the user" do
-    should contain_group('rails').with(
-      :require => 'User[rails]',
-    )
+  it do should contain_exec("rails:my-rails-app:dir").with(
+          :command => "/bin/mkdir -p /u/apps/my-rails-app",
+          :creates => "/u/apps/my-rails-app"
+  ) end
+
+  %w{ releases shared services }.each do |d|
+    it do should contain_file("/u/apps/my-rails-app/#{d}").with(
+            :owner   => 'rails',
+            :mode    => '1775',
+            :require => 'File[/u/apps/my-rails-app]'
+    ) end
   end
 
-  it "creates deploy area" do
-    should contain_file('/opt/apps').with(
-      :owner => 'rails',
-      :group => 'rails',
-      :mode => '1775',
-      :require => 'User[rails]'
-    )
+  %w{ config log pids }.each do |d|
+    it do should contain_file("/u/apps/my-rails-app/shared/#{d}").with(
+            :owner   => 'rails',
+            :mode    => '1775',
+            :require => 'File[/u/apps/my-rails-app/shared]'
+    ) end
   end
 
-  it "creates folder for the application" do
-    should contain_file('/opt/apps/my-rails-app').with(
-      :owner => 'rails',
-      :group => 'rails',
-      :mode => '1775',
-      :require => 'File[/opt/apps]'
-    )
-  end
+  it do should contain_file("/u/apps/my-rails-app/shared/config/settings").with(
+          :owner   => 'rails',
+          :require => 'File[/u/apps/my-rails-app/shared/config]'
+  ) end
 
-  describe "without params" do
+  context "without params" do
     let(:params) { Hash.new }
-    it "defaults $deploy_path to '/data'" do
-      should contain_file('/data')
-    end
-
-    it "defaults $app_user to 'deploy'" do
-      should contain_user('deploy')
-    end
+    it { should contain_file("/u/apps/my-app") }
+    it { should contain_user("my-app") }
   end
 end

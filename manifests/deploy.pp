@@ -15,6 +15,7 @@
 #                     '/u/apps'
 #   [*app_user*]    - name of the system user to create to run the application
 #                     as. Defaults to 'deploy'
+#   [*keys*]        - public ssh keys
 #
 # Requires:
 #
@@ -27,11 +28,12 @@
 
 define rails::deploy(
   $app_name    = $name,
-  $deploy_path = '/u/apps/',
-  $app_user    = 'deploy',
-  $public_key  = '<EMPTY>',
-  $private_key = '<EMPTY>',
+  $deploy_path = '/u/apps',
+  $app_user    = $name,
+  $keys        = undef,
 ) {
+
+  $app_deploy_path = "${deploy_path}/${app_name}"
 
   user { $app_user :
     ensure     => present,
@@ -54,72 +56,49 @@ define rails::deploy(
     require => User[$app_user]
   }
 
-  if $private_key != '<EMPTY>' {
-    file{ "/home/${app_user}/.ssh/id_rsa":
-      ensure  => 'present',
-      mode    => '0600',
-      owner   => $app_user,
-      group   => $app_user,
-      content => $private_key,
-      require => File["/home/${app_user}/.ssh"]
-    }
-  }
-
-  if $public_key != '<EMPTY>' {
-    file{ "/home/${app_user}/.ssh/id_rsa.pub":
-      ensure  => 'present',
-      mode    => '0644',
-      owner   => $app_user,
-      group   => $app_user,
-      content => $public_key,
-      require => File["/home/${app_user}/.ssh"]
-    }
-
+  if $keys != undef {
     file{ "/home/${app_user}/.ssh/authorized_keys":
       ensure  => 'present',
       mode    => '0644',
       owner   => $app_user,
-      group   => $app_user,
-      content => $public_key,
+      content => inline_template('<%= keys.join("\n") %>'),
       require => File["/home/${app_user}/.ssh"]
     }
   }
 
-  exec { 'create_rails_deploy_path':
-    command    => "/bin/mkdir -p ${deploy_path}/${app_name}",
-    unless     => "/usr/bin/test -d ${deploy_path}/${app_name}"
+  exec { "rails:${app_name}:dir":
+    command    => "/bin/mkdir -p ${app_deploy_path}",
+    creates    => $app_deploy_path,
   }
 
-  file { "${deploy_path}/${app_name}":
+  file { $app_deploy_path:
     ensure     => directory,
     owner      => $app_user,
-    group      => $app_user,
     mode       => '1775',
-    require    => [User[$app_user], Exec['create_rails_deploy_path']]
+    require    => [User[$app_user], Exec["rails:${app_name}:dir"]]
   }
 
-  file { ["${deploy_path}/${app_name}/releases",
-          "${deploy_path}/${app_name}/shared",
-          "${deploy_path}/${app_name}/services"]:
+  file { ["${app_deploy_path}/releases",
+          "${app_deploy_path}/shared",
+          "${app_deploy_path}/services"]:
     ensure     => directory,
     owner      => $app_user,
-    group      => $app_user,
     mode       => '1775',
-    require    => File["${deploy_path}/${app_name}"]
+    require    => File[$app_deploy_path]
   }
 
-  file { ["${deploy_path}/${app_name}/shared/config",
-          "${deploy_path}/${app_name}/shared/log"]:
+  file { ["${app_deploy_path}/shared/config",
+          "${app_deploy_path}/shared/log",
+          "${app_deploy_path}/shared/pids"]:
     ensure     => directory,
     owner      => $app_user,
-    group      => $app_user,
-    require    => File["${deploy_path}/${app_name}/shared"]
+    mode       => '1775',
+    require    => File["${app_deploy_path}/shared"]
   }
 
-  file { "${deploy_path}/${app_name}/shared/config/settings":
+  file { "${app_deploy_path}/shared/config/settings":
     ensure     => directory,
     owner      => $app_user,
-    group      => $app_user,
-    require    => File["${deploy_path}/${app_name}/shared/config"]
+    require    => File["${app_deploy_path}/shared/config"]
   }
 }

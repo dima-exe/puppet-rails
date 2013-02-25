@@ -1,0 +1,12 @@
+<%- enc = {"postgresql" => "unicode", "mysql2" => "utf8"} %>
+setup: &setup
+  adapter: "<%= db_adapter %>"
+  host: "<%= db_host %>"
+  username: "<%= db_user %>"
+  password: "<%= db_password %>"
+  encoding: "<%= enc[db_adapter] %>"
+  poll: <%= db_pool %>
+
+<%= rails_env %>:
+  database: "<%= application %>_<%= rails_env %>"
+  <<: *setup

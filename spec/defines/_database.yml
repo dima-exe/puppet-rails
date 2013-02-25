@@ -1,0 +1,12 @@
+
+setup: &setup
+  adapter: "postgresql"
+  host: "example.com"
+  username: "db-user"
+  password: "db-pass"
+  encoding: "unicode"
+  poll: 10
+
+staging:
+  database: "my-app_staging"
+  <<: *setup

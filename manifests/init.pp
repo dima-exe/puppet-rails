@@ -3,7 +3,7 @@
 # Module for reusable Rails configuration
 #
 # Parameters:
-# 
+#
 # Actions:
 #
 # Requires:
