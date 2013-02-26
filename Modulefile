@@ -1,5 +1,5 @@
 name    'dmexe-rails'
-version '0.1.1'
+version '0.1.2'
 source 'http://github.com/dima-exe/puppet-rails'
 author 'Eduardo Gutierrez'
 license 'MIT'
@@ -9,3 +9,5 @@ project_page 'http://github.com/dima-exe/puppet-rails'
 
 dependency 'puppetlabs/mysql'
 dependency 'puppetlabs/postgresql'
+dependency 'dmexe/rbenv'
+dependency 'BenoitCattie/nginx'
