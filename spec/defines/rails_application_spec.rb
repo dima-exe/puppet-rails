@@ -53,4 +53,9 @@ describe 'rails::application' do
             :require     => 'File[/u/apps/my-app/shared/config]'
     ) end
   end
+
+  context "with $ruby" do
+    let(:params){ default_params.merge(:ruby => 'my-ruby-version') }
+    it { should contain_resource("Rbenv::Ruby[my-ruby-version]") }
+  end
 end
