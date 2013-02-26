@@ -16,7 +16,7 @@ describe 'rails::deploy' do
   ) end
 
   it do should contain_group('rails').with(
-          :require => 'User[rails]',
+          :require => 'User[rails]'
   ) end
 
   it do should contain_file("/home/rails/.ssh").with(

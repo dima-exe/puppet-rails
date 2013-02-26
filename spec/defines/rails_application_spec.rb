@@ -19,7 +19,7 @@ describe 'rails::application' do
   it do should contain_resource("Rails::Deploy[my-app]").with(
           :deploy_path => "/u/apps/my-app",
           :app_user    => 'app-user',
-          :keys        => nil,
+          :keys        => nil
   ) end
 
   it do should contain_file("#{shared_dir}/config/unicorn.rb").with(

@@ -23,7 +23,7 @@ describe 'rails::database' do
 
     it do should contain_resource("Database_user[db-user@%]").with(
             :password_hash => '*45F8C661CF22C14CF93F23E62B4DA8E9BAB749E0',
-            :require => 'Class[Mysql::Config]',
+            :require => 'Class[Mysql::Config]'
     ) end
 
     it do should contain_resource("Database_grant[db-user@%]").with(
