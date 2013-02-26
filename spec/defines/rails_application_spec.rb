@@ -16,11 +16,14 @@ describe 'rails::application' do
   let(:params){ default_params }
   let(:shared_dir){ "/u/apps/#{params[:application]}/shared" }
 
-  it do should contain_resource("Rails::Deploy[my-app]").with(
-          :deploy_path => "/u/apps/my-app",
-          :app_user    => 'app-user',
-          :keys        => nil
-  ) end
+  it "should create resource Rails::Deploy" do
+    should contain_resource("Rails::Deploy[my-app]").with(
+      :deploy_path => "/u/apps",
+      :app_user    => 'app-user',
+      :keys        => nil
+    )
+    should contain_file("#{shared_dir}/config")
+  end
 
   it do should contain_file("#{shared_dir}/config/unicorn.rb").with(
           :owner       => 'app-user',

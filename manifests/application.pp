@@ -1,4 +1,5 @@
 # Class: rails::application
+
 #
 # Setup env for application
 #   * create user
@@ -38,7 +39,8 @@ define rails::application(
   $num_instances       = 2,
 ){
 
-  $deploy_to = "/u/apps/${application}"
+  $deploy_path = '/u/apps'
+  $deploy_to = "${deploy_path}/${application}"
 
   if $ruby != undef {
     rbenv::ruby{ $ruby: }
@@ -46,7 +48,7 @@ define rails::application(
 
   rails::deploy{ $application:
     keys        => $keys,
-    deploy_path => $deploy_to,
+    deploy_path => $deploy_path,
     app_user    => $app_user,
   }
 

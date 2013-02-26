@@ -1,4 +1,4 @@
-name    'evrone-rails'
+name    'dmexe-rails'
 version '0.1.0'
 source 'http://github.com/dima-exe/puppet-rails'
 author 'Eduardo Gutierrez'
