@@ -1,10 +1,10 @@
 rvm:
   - 1.8.7
-  - 1.9.1
-  - 1.9.2
   - 1.9.3
 branches:
   only:
     - master
 env:
-  - PUPPET_VERSION=3.1.0
+  - PUPPET_VERSION="3.1"
+  - PUPPET_GEM_VERSION="2.7"
+cript: "bundle exec rake SPEC_OPTS='--format documentation'"

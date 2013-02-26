@@ -34,7 +34,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  puppet (~> 3.1.0)
+  puppet (~> 3.1)
   puppet-lint
   puppetlabs_spec_helper
   rake
