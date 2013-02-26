@@ -57,7 +57,7 @@ define rails::application(
       ensure     => 'present',
       owner      => $app_user,
       content    => template('rails/database.yml.erb'),
-      require    => Rails::Deploy[$application]
+      require    => File["${deploy_to}/shared/config"]
     }
   }
 
@@ -65,7 +65,7 @@ define rails::application(
     ensure     => 'present',
     owner      => $app_user,
     content    => template('rails/unicorn.rb.erb'),
-    require    => Rails::Deploy[$application]
+    require    => File["${deploy_to}/shared/config"]
   }
 
   runit::service { $application:
@@ -73,6 +73,6 @@ define rails::application(
     group      => $app_user,
     rundir     => "${deploy_to}/services",
     command    => "runsvdir ${deploy_to}/services/current",
-    require    => Rails::Deploy[$application]
+    require    => File["${deploy_to}/services"]
   }
 }

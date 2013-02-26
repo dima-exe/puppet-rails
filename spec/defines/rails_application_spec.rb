@@ -27,7 +27,7 @@ describe 'rails::application' do
 
   it do should contain_file("#{shared_dir}/config/unicorn.rb").with(
           :owner       => 'app-user',
-          :require     => 'Rails::Deploy[my-app]'
+          :require     => 'File[/u/apps/my-app/shared/config]'
   ) end
 
   it do should contain_resource("Runit::Service[my-app]").with(
@@ -35,7 +35,7 @@ describe 'rails::application' do
           :group       => 'app-user',
           :rundir      => "/u/apps/my-app/services",
           :command     => 'runsvdir /u/apps/my-app/services/current',
-          :require     => "Rails::Deploy[my-app]"
+          :require     => 'File[/u/apps/my-app/services]'
   ) end
 
   context "with $keys" do
@@ -50,7 +50,7 @@ describe 'rails::application' do
     it do should contain_file("#{shared_dir}/config/database.yml").with(
             :owner => 'app-user',
             :content => File.read(File.expand_path(__FILE__ + "/../_database.yml")),
-            :require => 'Rails::Deploy[my-app]'
+            :require     => 'File[/u/apps/my-app/shared/config]'
     ) end
   end
 end
