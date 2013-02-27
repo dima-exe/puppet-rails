@@ -61,7 +61,7 @@ define rails::deploy(
       ensure  => 'present',
       mode    => '0644',
       owner   => $app_user,
-      content => inline_template('<%= keys.join("\n") %>'),
+      content => inline_template('<%= [keys].flatten.join("\n") %>'),
       require => File["/home/${app_user}/.ssh"]
     }
   }

@@ -35,6 +35,16 @@ describe 'rails::deploy' do
             :owner   => 'rails',
             :require => "File[/home/rails/.ssh]"
     ) end
+
+    context "is string" do
+      let(:params) { { :keys => "key", :app_user => "rails" } }
+      it do should contain_file("/home/rails/.ssh/authorized_keys").with(
+        :mode    => '0644',
+        :content => 'key',
+        :owner   => 'rails',
+        :require => "File[/home/rails/.ssh]"
+      ) end
+    end
   end
 
   it do should contain_exec("rails:my-rails-app:dir").with(
