@@ -39,6 +39,8 @@ define rails::application(
   $num_instances       = 2,
 ){
 
+  include 'runit'
+
   $deploy_path = '/u/apps'
   $deploy_to = "${deploy_path}/${application}"
 
