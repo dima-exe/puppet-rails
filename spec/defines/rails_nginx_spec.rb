@@ -9,6 +9,7 @@ describe 'rails::nginx' do
   let(:params){ default_params }
 
   it { should contain_resource("Nginx::Site[my-app]") }
+  it { should contain_class("nginx") }
 
   context "with default params" do
     let(:params){ Hash.new }

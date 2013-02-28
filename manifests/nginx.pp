@@ -12,6 +12,8 @@
 define rails::nginx(
   $application = $name,
 ){
+  include 'nginx'
+
   nginx::site{ $application:
     content => template('rails/nginx.conf.erb'),
   }
