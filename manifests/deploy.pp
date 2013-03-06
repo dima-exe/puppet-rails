@@ -15,7 +15,7 @@
 #                     '/u/apps'
 #   [*app_user*]    - name of the system user to create to run the application
 #                     as. Defaults to 'deploy'
-#   [*keys*]        - public ssh keys
+#   [*deploy_keys*] - public ssh keys
 #
 # Requires:
 #
@@ -30,7 +30,7 @@ define rails::deploy(
   $app_name    = $name,
   $deploy_path = '/u/apps',
   $app_user    = $name,
-  $keys        = undef,
+  $deploy_keys = undef,
 ) {
 
   $app_deploy_path = "${deploy_path}/${app_name}"
@@ -48,21 +48,12 @@ define rails::deploy(
     require    => User[$app_user],
   }
 
-  file{ "/home/${app_user}/.ssh":
-    ensure  => 'directory',
-    mode    => '0700',
-    owner   => $app_user,
-    group   => $app_user,
-    require => User[$app_user]
-  }
-
-  if $keys != undef {
-    file{ "/home/${app_user}/.ssh/authorized_keys":
-      ensure  => 'present',
-      mode    => '0644',
-      owner   => $app_user,
-      content => inline_template('<%= [keys].flatten.join("\n") %>'),
-      require => File["/home/${app_user}/.ssh"]
+  if $deploy_keys != undef {
+    ssh_authorized_key { "${app_user}_deploy_keys":
+      ensure => 'present',
+      key    => $deploy_keys,
+      type   => 'ssh-rsa',
+      user   => $app_user
     }
   }
 

@@ -19,32 +19,9 @@ describe 'rails::deploy' do
           :require => 'User[rails]'
   ) end
 
-  it do should contain_file("/home/rails/.ssh").with(
-          :mode  => '0700',
-          :owner => 'rails',
-          :group => 'rails',
-          :require => "User[rails]"
-  ) end
-
-  context "with $keys" do
-    let(:params) { { :keys => ["keys"], :app_user => "rails" } }
-
-    it do should contain_file("/home/rails/.ssh/authorized_keys").with(
-            :mode    => '0644',
-            :content => 'keys',
-            :owner   => 'rails',
-            :require => "File[/home/rails/.ssh]"
-    ) end
-
-    context "is string" do
-      let(:params) { { :keys => "key", :app_user => "rails" } }
-      it do should contain_file("/home/rails/.ssh/authorized_keys").with(
-        :mode    => '0644',
-        :content => 'key',
-        :owner   => 'rails',
-        :require => "File[/home/rails/.ssh]"
-      ) end
-    end
+  context "with $deploy_keys" do
+    let(:params) { { :deploy_keys => ["keys"], :app_user => "rails" } }
+    it { should contain_resource("Ssh_authorized_key[rails_deploy_keys]") }
   end
 
   it do should contain_exec("rails:my-rails-app:dir").with(

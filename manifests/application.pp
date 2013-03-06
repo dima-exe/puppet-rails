@@ -10,7 +10,6 @@
 #
 # Parameters:
 #   [*application*]   - the name of application
-#   [*ruby*]          - rbenv version  of ruby
 #   [*keys*]          - public ssh keys
 #   [*num_instances*] - num unicorn instances to run
 #   [*rails_env*]
@@ -27,8 +26,7 @@
 
 define rails::application(
   $application         = $name,
-  $ruby                = undef,
-  $keys                = undef,
+  $deploy_keys         = undef,
   $rails_env           = 'production',
   $app_user            = $name,
   $db_adapter          = undef,
@@ -44,12 +42,8 @@ define rails::application(
   $deploy_path = '/u/apps'
   $deploy_to = "${deploy_path}/${application}"
 
-  if $ruby != undef {
-    rbenv::ruby{ $ruby: }
-  }
-
   rails::deploy{ $application:
-    keys        => $keys,
+    deploy_keys => $deploy_keys,
     deploy_path => $deploy_path,
     app_user    => $app_user,
   }

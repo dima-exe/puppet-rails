@@ -22,7 +22,7 @@ describe 'rails::application' do
     should contain_resource("Rails::Deploy[my-app]").with(
       :deploy_path => "/u/apps",
       :app_user    => 'app-user',
-      :keys        => nil
+      :deploy_keys => nil
     )
     should contain_file("#{shared_dir}/config")
   end
@@ -40,10 +40,10 @@ describe 'rails::application' do
           :require     => 'File[/u/apps/my-app/services]'
   ) end
 
-  context "with $keys" do
-    let(:params){ { :keys => ['keys'] } }
+  context "with $deploy_keys" do
+    let(:params){ { :deploy_keys => ['keys'] } }
     it do should contain_resource("Rails::Deploy[my-app-title]").with(
-            :keys => ['keys']
+            :deploy_keys => ['keys']
     ) end
   end
 
@@ -54,10 +54,5 @@ describe 'rails::application' do
             :content => File.read(File.expand_path(__FILE__ + "/../_database.yml")),
             :require     => 'File[/u/apps/my-app/shared/config]'
     ) end
-  end
-
-  context "with $ruby" do
-    let(:params){ default_params.merge(:ruby => 'my-ruby-version') }
-    it { should contain_resource("Rbenv::Ruby[my-ruby-version]") }
   end
 end
