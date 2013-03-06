@@ -18,6 +18,7 @@
 #   [*db_password*]
 #   [*db_host*]
 #   [*db_pool*]
+#   [*resque_url*]
 #
 # Requires:
 #
@@ -35,6 +36,7 @@ define rails::application(
   $db_host             = 'localhost',
   $db_pool             = 5,
   $num_instances       = 2,
+  $resque_url          = undef,
 ){
 
   include 'runit'
@@ -50,18 +52,30 @@ define rails::application(
 
   if $db_adapter != undef {
     file{ "${deploy_to}/shared/config/database.yml":
-      ensure     => 'present',
-      owner      => $app_user,
-      content    => template('rails/database.yml.erb'),
-      require    => File["${deploy_to}/shared/config"]
+      ensure  => 'present',
+      owner   => $app_user,
+      content => template('rails/database.yml.erb'),
+      mode    => '0640',
+      require => File["${deploy_to}/shared/config"]
+    }
+  }
+
+  if $resque_url != undef {
+    file{ "${deploy_to}/shared/config/resque.yml":
+      ensure  => 'present',
+      owner   => $app_user,
+      mode    => '0640',
+      content => template('rails/resque.yml.erb'),
+      require => File["${deploy_to}/shared/config"]
     }
   }
 
   file{ "${deploy_to}/shared/config/unicorn.rb":
-    ensure     => 'present',
-    owner      => $app_user,
-    content    => template('rails/unicorn.rb.erb'),
-    require    => File["${deploy_to}/shared/config"]
+    ensure  => 'present',
+    owner   => $app_user,
+    mode    => '0640',
+    content => template('rails/unicorn.rb.erb'),
+    require => File["${deploy_to}/shared/config"]
   }
 
   runit::service { $application:

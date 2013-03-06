@@ -55,4 +55,12 @@ describe 'rails::application' do
             :require     => 'File[/u/apps/my-app/shared/config]'
     ) end
   end
+
+  context "with $resque_url" do
+    let(:params) { default_params.merge(:resque_url => "url") }
+    it do should contain_file("#{shared_dir}/config/resque.yml").with(
+            :owner => 'app-user',
+            :require     => 'File[/u/apps/my-app/shared/config]'
+    ) end
+  end
 end
